@@ -25,34 +25,18 @@ shiftSIGN=k;
 end
 end
 
-%startsync=shiftSIGN-(round(length(crosscov)/2));
 startsync=shiftSIGN-((length(crosscov)/2));
 
 
-%%% Figure 
-% figure
-% subplot(2,1,1)
-% plot(feet_f(abs(startsync):se,1),'b')
-% hold on
-% plot(feet_f(1:se-(abs(startsync)-1),2),'m')
-% legend('R leg','L leg')
-% title('R and L angular velocity')
-% ylabel('degrees/s')
-% xlabel('Frame')
-% 
+
 t_feet1=feet_f(round(abs(startsync)):se,1);
 t_feet2=feet_f(1:se-(round(abs(startsync))-1),2);
-% 
-% figure;
-% plot(t_feet1);hold on;
-% plot(t_feet2)
+
 j=1:200:length(t_feet1);
 if length(t_feet1)>200*5%%%15%% Ideally there is no condition like this once we find bout duration greater than 10 sec
     for z=1:length(j)-2
         a=corrcoef(t_feet1(j(z):j(z+1)),t_feet2(j(z):j(z+1)));
         feet_corr(z)=a(1,2);
-        % figure;plot(t_feet1(j(z):j(z+1)),t_feet2(j(z):j(z+1)))
-        % pause
     end
     
     ab_feet_corr=abs(feet_corr);
@@ -98,7 +82,6 @@ Ratio_y(k)=sum(Pyy(LF:HF)).^2/sum(Pyy(LLF:LF)).^2;
 end
 for f=1:length(Ratio_x)
 if Ratio_x(f)>10 || Ratio_y(f)>10  %% also tried with 10
-%if Ratio_x(f)<1e-4 || Ratio_y(f)<1e-4 
 percF(f)=1;
 else
 percF(f)=0;
@@ -132,27 +115,7 @@ Merged_percF_final(FOG_episode(indices_1)+1)=1;
 indices_2=find(FOG_episode_diff==3);
 Merged_percF_final(FOG_episode(indices_2)+1)=1;
 Merged_percF_final(FOG_episode(indices_2)+2)=1;
-% % 
-% %%%%%%%% Merging FOG Episdoes with 3 sec apart
-% indices_3=find(FOG_episode_diff==4)
-% Merged_percF_final(FOG_episode(indices_3)+1)=1;
-% Merged_percF_final(FOG_episode(indices_3)+2)=1;
-% Merged_percF_final(FOG_episode(indices_3)+3)=1;
-% % % 
-% % % %%%%%%%% Merging FOG Episdoes with 4 sec apart
-% indices_4=find(FOG_episode_diff==5)
-% Merged_percF_final(FOG_episode(indices_4)+1)=1;
-% Merged_percF_final(FOG_episode(indices_4)+2)=1;
-% Merged_percF_final(FOG_episode(indices_4)+3)=1;
-% Merged_percF_final(FOG_episode(indices_4)+4)=1;
-% 
-% % %%%%%%%% Merging FOG Episdoes with 5 sec apart
-% indices_5=find(FOG_episode_diff==6)
-% Merged_percF_final(FOG_episode(indices_5)+1)=1;
-% Merged_percF_final(FOG_episode(indices_5)+2)=1;
-% Merged_percF_final(FOG_episode(indices_5)+3)=1;
-% Merged_percF_final(FOG_episode(indices_5)+4)=1;
-% Merged_percF_final(FOG_episode(indices_5)+5)=1;
+
 
 
 N=find(Merged_percF_final==1);
@@ -203,8 +166,7 @@ else
     IFOG_feet.MM=NaN;
     
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%----------------------
+
 
 
 

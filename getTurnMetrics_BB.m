@@ -149,8 +149,7 @@ turnDurations   = turnDurations(1:i1);
 turnJerk        = turnJerk(1:i1);
 turnML_Jerk         = turnML_Jerk(1:i1);
 turnMLrange         = turnMLrange(1:i1);
-% turnMLJerk        = turnMLJerk(1:i1);
-% turnMLRange       = MLrange(1:i1);
+
 
 
 pv = zeros(length(turnAngles),1);
@@ -164,8 +163,8 @@ Turns.iTurns    = iTurnStart;
 Turns.iTurnEnds = iTurnEnd;
 Turns.durations = turnDurations;
 Turns.angles    = round(turnAngles);
-Turns.meanVel   = mv*180/pi; %% added august 2016 Martina 
-Turns.peakVel   = pv*180/pi; %% added august 2016 Martina 
+Turns.meanVel   = mv*180/pi; 
+Turns.peakVel   = pv*180/pi; 
 Turns.jerk      = turnJerk ;
 Turns.MLRange   = turnMLrange;
 Turns.MLJerk    = turnML_Jerk;
