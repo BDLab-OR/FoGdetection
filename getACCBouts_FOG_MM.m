@@ -49,11 +49,11 @@ end
 iWalkStart_bt  = iNoWalk(find(diff(iNoWalk) > 1))+1;           
 
 
-%%%%%%%% Corrected bouts so that includes the last bout
+%%%%%%%% % In Case of Mutliple Start and End bouts
+
 % 1. When End bout is nonempty and (the leanght of either the end bout and
 % the start bout>1) OR When End bout is nonempty and (the leanght of the end bout and
 % the start bout=1 but end out indice is smaller than start bout indice)
-% that is, the person is standing and then walking once the recording start
 if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>1)) || (~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && length(iWalkStart_bt)==1 && (iWalkEnd_bt(1) < iWalkStart_bt(1)))
     %When total length of the End bout < Start Bout
     iWalkEnd_bt=[iWalkEnd_bt;iWalk(end)];
@@ -61,10 +61,8 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
     if length(iWalkStart_bt)~=length(iWalkEnd_bt)
         % Check if End bout < Start bout
         if iWalkEnd_bt(1) < iWalkStart_bt(1)
-            % carried forward walking from previous 30 min window..
             iWalkStart_bt=[1;iWalkStart_bt];
         else 
-            % stated walking in this window and stopped multiple time but was walking during the end of the window 
             iWalkEnd_bt=iWalkEnd_bt(1:end-1);
         end
     end
@@ -147,9 +145,7 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
         Walks.IndexEnd           =iWalkEnd_new_2;
     end
     
-    % No Start Bout and End bout has 1 indix, that is,  person is walking
-    % during the start of recording and stoped during the recording and not
-    % walked after that
+    % No Start Bout and End bout has 1 indix
 elseif ~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && isempty(iWalkStart_bt)==1
     Walks.iWalks            = 1;
     iWalkStart_bt=1;
@@ -163,8 +159,7 @@ elseif ~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && isempty(iWalkStart_
         Walks.IndexEnd          = [];
     else
     end
-    % No End Bout and Start bout has 1 indix, that is,  person hasnot
-    % stopped once started walking during that 30 min period
+    % No End Bout and Start bout has 1 indix
 elseif ~isempty(iWalkStart_bt)==1 && length(iWalkStart_bt)==1 && isempty(iWalkEnd_bt)==1
     Walks.iWalks            = max(1,iWalkStart_bt);
     iWalkEnd_bt=iWalk(end);
