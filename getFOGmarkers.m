@@ -16,7 +16,8 @@ shanks_f=filtfilt(A,B,shanks);
 
 se=length(Rleg);
 
-%% R and L angular velocities correlation
+%% Correlation Based Method 
+%R and L angular velocities cross-correlation to find a delay between two
 cross_1=xcov(shanks(1:se,1),shanks(1:se,2));
 crosscov=cross_1;
 for k=1:length(crosscov);
@@ -25,11 +26,10 @@ shiftSIGN=k;
 end
 end
 
-%startsync=shiftSIGN-(round(length(crosscov)/2));
 startsync=shiftSIGN-((length(crosscov)/2));
 
 
-
+% Synchronizing both R and L together after correction for the delay
 t_shanks1=shanks_f(round(abs(startsync)):se,1);
 t_shanks2=shanks_f(1:se-(round(abs(startsync))-1),2);
 
@@ -41,6 +41,7 @@ if length(t_shanks1)>200*5%%%15%% Ideally there is no condition like this once w
     end
     
     ab_shank_corr=abs(shank_corr);
+    % Threshold on abs correlation value
     ab_shank_corr_log=ab_shank_corr < 0.50;
     
     IFOG_shank.Mcorr=mean(ab_shank_corr);
@@ -53,48 +54,45 @@ else
     IFOG_shank.SDcorr=NaN;
 end
 
-%%% Percentage time frozen
+%% FFT Based Method
 
 fc2=200;
 xx=resample(Rleg_acc,fc2,sampleRate);
 yy=resample(Lleg_acc,fc2,sampleRate);
+% correcting for the delay
 x=xx(round(abs(startsync)):se,1);
 y=yy(1:se-(round(abs(startsync))-1),1);
 if length(x)>fc2*5%% Ideally there is no condition like this once we find bout duration greater than 10 sec
-
 i=1:(fc2):(length(x)-(fc2)-1);
 al=length(i);
 for k=1:al-1
-
-
-
 L=length(x(i(k):i(k+1)))-1;
 f=0:fc2/L:(fc2/L)*(L-1);
-LF=find(f==3); % 
-HF=find(f==10); %%% now try 1 
+LF=find(f==3); 
+HF=find(f==10); 
 LLF=find(f==0);
+% FFT
 Pxx = abs(fft(detrend(x(i(k):i(k+1)))))/(L/2);
 Pyy = abs(fft(detrend(y(i(k):i(k+1)))))/(L/2);
 Ratio_x(k)=sum(Pxx(LF:HF)).^2/sum(Pxx(LLF:LF)).^2;
 Ratio_y(k)=sum(Pyy(LF:HF)).^2/sum(Pyy(LLF:LF)).^2;
-
-
-% 
 end
 for f=1:length(Ratio_x)
-if Ratio_x(f)>10 || Ratio_y(f)>10  %% also tried with 10
+    % Threshold on Frequecnt Ratio based on FFT
+if Ratio_x(f)>10 || Ratio_y(f)>10  
 percF(f)=1;
 else
 percF(f)=0;
 end
 end
+
 A=find(percF==1);
 B=length(percF);
 IFOG_shank.FoGtime=(100*length(A))/B;
 
 
 
-
+%% Condition of Finalizing FOG based both methods correctly identified FOG episodes
 for f=1:length(percF)
 if percF(f)==1 && ab_shank_corr_log(f)==1
 percF_final(f)=1;
@@ -102,6 +100,7 @@ else
 percF_final(f)=0;
 end
 end
+
 %%%%%%%% Without Merging FOG Episdoes%%%%%%%%%%%%%%%
 Merged_percF_final=percF_final;
 
@@ -121,6 +120,7 @@ Merged_percF_final(FOG_episode(indices_2)+2)=1;
 
 N=find(Merged_percF_final==1);
 M=length(Merged_percF_final);
+%%% Percentage time frozen
 IFOG_shank.FoGtime=(100*length(N))/M;
 IFOG_shank.NN=length(N);
 IFOG_shank.MM=M;

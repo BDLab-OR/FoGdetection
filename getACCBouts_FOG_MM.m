@@ -23,38 +23,53 @@ if length(nACCc)<=12 %%%%%%%%%%%%
 end
 %%%%%%%%%%%%
 Lum_f=filtfilt(A,B,nACCc);
+%% Walking indices based on threshold
 iWalking= Lum_f>0.015;
 Walks.iWalks            = [];
 Walks.duration          = [];
 Walks.IndexStart          = [];
 Walks.IndexEnd          = [];
 
-%% Changed by Vrutang
+%% finding Walking and Non-walking indices
 
 iWalk       = find(iWalking);
 iNoWalk    = find(~iWalking);
-iWalkEnd_bt    = iWalk  (find(diff(iWalk) > 1));        %%bt means before threshold       % indices of the end of each Walk
+% Finding the indices of the end of the walking boouts
+iWalkEnd_bt    = iWalk  (find(diff(iWalk) > 1)); 
+
+% If there is no walking bout end (i.e. only one bout detected) then
+% assign the end of that one Wlaking bout as end of the walking bout 
 if isempty(iWalkEnd_bt)==1
     if ~isempty(iWalk)==1
         iWalkEnd_bt=iWalk(end);
     else
     end
 end
-iWalkStart_bt  = iNoWalk(find(diff(iNoWalk) > 1))+1;           % indices of the start of each Walk
+% Finding the indices of the start of the walking boouts
+iWalkStart_bt  = iNoWalk(find(diff(iNoWalk) > 1))+1;           
 
 
 %%%%%%%% Corrected bouts so that includes the last bout
+% 1. When End bout is nonempty and (the leanght of either the end bout and
+% the start bout>1) OR When End bout is nonempty and (the leanght of the end bout and
+% the start bout=1 but end out indice is smaller than start bout indice)
+% that is, the person is standing and then walking once the recording start
 if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>1)) || (~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && length(iWalkStart_bt)==1 && (iWalkEnd_bt(1) < iWalkStart_bt(1)))
+    %When total length of the End bout < Start Bout
     iWalkEnd_bt=[iWalkEnd_bt;iWalk(end)];
-    
+    %If the total length of the End bout is still mismatch with the length of the Start Bout
     if length(iWalkStart_bt)~=length(iWalkEnd_bt)
+        % Check if End bout < Start bout
         if iWalkEnd_bt(1) < iWalkStart_bt(1)
+            % carried forward walking from previous 30 min window..
             iWalkStart_bt=[1;iWalkStart_bt];
-        else
+        else 
+            % stated walking in this window and stopped multiple time but was walking during the end of the window 
             iWalkEnd_bt=iWalkEnd_bt(1:end-1);
         end
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     if length(iWalkStart_bt)~=length(iWalkEnd_bt)
         iWalkEnd_bt(end)=[];
         WalkDurations_bt  = (iWalkEnd_bt-iWalkStart_bt);
@@ -62,13 +77,13 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
         WalkDurations_bt  = (iWalkEnd_bt-iWalkStart_bt);
     end
     %===========================================================
-    % Keep only moving intervals >= 0.5 s
+    % Keep only Walking intervals >= 0.5 s
     %===========================================================
     iC     = 0;
     for c1 = 1:length(WalkDurations_bt)
         if WalkDurations_bt(c1) > minStepInterval                 % Minimum moving interval aproximalty one step length
             iC = iC+1;
-            iWalkEnd(iC)      = iWalkEnd_bt(c1); %% mit stands for moving interval threshold
+            iWalkEnd(iC)      = iWalkEnd_bt(c1); 
             iWalkStart(iC)    = iWalkStart_bt(c1);
         else
             
@@ -89,7 +104,6 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
         %===========================================================
         iC          = 0;
         Flag        = 0;
-        %%%%%%%%%%%%%% Changed by Vrutang%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         boutCount   = length(WalkDurations)-1;
         indx=find(intraWalkDurations>maxIntraWalk);
@@ -115,6 +129,7 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
         
         %===========================================================
         %Keep only Walks with interval > 20 s
+        %===========================================================
         iWalkEnd_new_2    = [];
         iWalkStart_new_2    = [];
         iC       = 0;
@@ -132,6 +147,9 @@ if (~isempty(iWalkEnd_bt)==1 && (length(iWalkEnd_bt)>1 || length(iWalkStart_bt)>
         Walks.IndexEnd           =iWalkEnd_new_2;
     end
     
+    % No Start Bout and End bout has 1 indix, that is,  person is walking
+    % during the start of recording and stoped during the recording and not
+    % walked after that
 elseif ~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && isempty(iWalkStart_bt)==1
     Walks.iWalks            = 1;
     iWalkStart_bt=1;
@@ -145,6 +163,8 @@ elseif ~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && isempty(iWalkStart_
         Walks.IndexEnd          = [];
     else
     end
+    % No End Bout and Start bout has 1 indix, that is,  person hasnot
+    % stopped once started walking during that 30 min period
 elseif ~isempty(iWalkStart_bt)==1 && length(iWalkStart_bt)==1 && isempty(iWalkEnd_bt)==1
     Walks.iWalks            = max(1,iWalkStart_bt);
     iWalkEnd_bt=iWalk(end);
@@ -158,6 +178,7 @@ elseif ~isempty(iWalkStart_bt)==1 && length(iWalkStart_bt)==1 && isempty(iWalkEn
         Walks.IndexEnd          = [];
     else
     end
+    % Only 1 end bout index and is > stat bout index
 elseif ~isempty(iWalkEnd_bt)==1 && length(iWalkEnd_bt)==1 && (iWalkEnd_bt > iWalkStart_bt)
     Walks.iWalks            = max(1,iWalkStart_bt);
     Walks.duration          = iWalkEnd_bt-iWalkStart_bt;

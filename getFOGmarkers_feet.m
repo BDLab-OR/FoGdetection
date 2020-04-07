@@ -16,7 +16,8 @@ feet_f=filtfilt(A,B,feet);
 
 se=length(Rfoot);
 
-%% R and L angular velocities correlation
+%% Correlation Based Method 
+%R and L angular velocities cross-correlation to find a delay between two
 cross_1=xcov(feet(1:se,1),feet(1:se,2));
 crosscov=cross_1;
 for k=1:length(crosscov);
@@ -28,7 +29,7 @@ end
 startsync=shiftSIGN-((length(crosscov)/2));
 
 
-
+% Synchronizing both R and L together after correction for the delay
 t_feet1=feet_f(round(abs(startsync)):se,1);
 t_feet2=feet_f(1:se-(round(abs(startsync))-1),2);
 
@@ -40,6 +41,7 @@ if length(t_feet1)>200*5%%%15%% Ideally there is no condition like this once we 
     end
     
     ab_feet_corr=abs(feet_corr);
+    % Threshold on abs correlation value
     ab_feet_corr_log=ab_feet_corr < 0.50;
     
     IFOG_feet.Mcorr=mean(ab_feet_corr);
@@ -51,8 +53,8 @@ else
     IFOG_feet.Mcorr=NaN;
     IFOG_feet.SDcorr=NaN;
 end
+%% FFT Based Method
 
-%%% Percentage time frozen
 
 fc2=200;
 xx=resample(Rfoot_acc,fc2,sampleRate);
@@ -69,8 +71,8 @@ for k=1:al-1
 
 L=length(x(i(k):i(k+1)))-1;
 f=0:fc2/L:(fc2/L)*(L-1);
-LF=find(f==3); % 
-HF=find(f==10); %%% now try 1 
+LF=find(f==3); 
+HF=find(f==10); 
 LLF=find(f==0);
 Pxx = abs(fft(detrend(x(i(k):i(k+1)))))/(L/2);
 Pyy = abs(fft(detrend(y(i(k):i(k+1)))))/(L/2);
@@ -81,7 +83,8 @@ Ratio_y(k)=sum(Pyy(LF:HF)).^2/sum(Pyy(LLF:LF)).^2;
 % 
 end
 for f=1:length(Ratio_x)
-if Ratio_x(f)>10 || Ratio_y(f)>10  %% also tried with 10
+        % Threshold on Frequecnt Ratio based on FFT
+if Ratio_x(f)>10 || Ratio_y(f)>10  
 percF(f)=1;
 else
 percF(f)=0;
@@ -93,6 +96,7 @@ IFOG_feet.FoGtime=(100*length(A))/B;
 
 
 
+%% Condition of Finalizing FOG based both methods correctly identified FOG episodes
 
 for f=1:length(percF)
 if percF(f)==1 && ab_feet_corr_log(f)==1
@@ -120,6 +124,7 @@ Merged_percF_final(FOG_episode(indices_2)+2)=1;
 
 N=find(Merged_percF_final==1);
 M=length(Merged_percF_final);
+%%% Percentage time frozen
 IFOG_feet.FoGtime=(100*length(N))/M;
 IFOG_feet.NN=length(N);
 IFOG_feet.MM=M;

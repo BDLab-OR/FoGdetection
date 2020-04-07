@@ -3,7 +3,7 @@ dbstop if error
 
 lpCF            = 3;                                        % Lowpass filter
 
-
+% Applying Kernel filter to Lumbar Data
 AccLp(:,1) = KernelFilter(Data(:,1),sampleRate,lpCF)/9.81; % Lumbar Vertical
 AccLp(:,2) = KernelFilter(Data(:,2),sampleRate,lpCF)/9.81; % Lumbar Medio-Lateral
 AccLp(:,3) = KernelFilter(Data(:,3),sampleRate,lpCF)/9.81; % Lumbar Anterior-Posterior
@@ -13,7 +13,7 @@ gyroLp(:,2) = KernelFilter(Data(:,5),sampleRate,lpCF);
 gyroLp(:,3) = KernelFilter(Data(:,6),sampleRate,lpCF);
 
 
-%%% R and L leg NOT filtered
+%%% R and L leg NOT filtered if any
 if ~isempty(Data_Rl)
     Rl_gyroLp(:,1) =Data_Rl(:,4);
     Rl_gyroLp(:,2) =Data_Rl(:,5);
@@ -66,7 +66,7 @@ Turns.jerk      = [];
 Turns.MLJerk      = [];
 Turns.MLRange      = [];
 %===========================================================
-% Analyze 30 min segment at the time
+% Analyze 30 min segment at a time
 %===========================================================
 for cSegment    = 1: nHours
     tic
@@ -78,6 +78,9 @@ for cSegment    = 1: nHours
         iEnd      = iEnd + segmentL;
     end
     iSamples     = iStart:iEnd;
+    % Checking if the length of the data is 30 min
+    % (30min*60sec*128Hz=230400) or less and assigning to sensors
+    % accordingly
     if length(gyroLp)<230400
         gLumbar      = gyroLp;
         aLumbar      = AccLp;
@@ -126,7 +129,6 @@ for cSegment    = 1: nHours
         Walks.number    = 0;
         Walks.duration  = [];
         
-        
         Turns.number    = 0;
         Turns.angles    = [];
         Turns.durations = [];
@@ -151,7 +153,6 @@ for cSegment    = 1: nHours
         IFOG_feet.Long_FOG=[];
         IFOG_feet.NN=[];
         IFOG_feet.MM=[];
-        
         
         Metrics(cSegment).Turns = Turns;
         Metrics(cSegment).Walks = Walks;
@@ -193,11 +194,6 @@ for cSegment    = 1: nHours
         Lfoot_acc       = aLfoot(Walks.IndexStart(cWalks): Walks.IndexStart(cWalks)+Walks.duration(cWalks),1);
         Rfoot_gyr       = -gRfoot(Walks.IndexStart(cWalks): Walks.IndexStart(cWalks)+Walks.duration(cWalks),2);
         Lfoot_gyr       = -gLfoot(Walks.IndexStart(cWalks): Walks.IndexStart(cWalks)+Walks.duration(cWalks),2);
-        
-        
-        
-        
-        
         IFOG_feet=getFOGmarkers_feet(Rfoot_acc,Lfoot_acc,Rfoot_gyr,Lfoot_gyr,sampleRate);
         IFOG1_feet.FoGtime(cWalks,1)=IFOG_feet.FoGtime;
         IFOG1_feet.NN(cWalks,1)=IFOG_feet.NN;
@@ -228,7 +224,6 @@ for cSegment    = 1: nHours
         
         
         fileName
-        %WalkTurn    = getTurnMetrics(gyroV,MLacc, APacc, Vacc,sampleRate,[fileName '' cWalks]);
         WalkTurn    = getTurnMetrics_BB(gyroV,MLacc, APacc,sampleRate);
         length(WalkTurn.durations)
         

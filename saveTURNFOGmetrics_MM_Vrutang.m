@@ -12,7 +12,7 @@ nameFolds(ismember(nameFolds,{'.','..'})) = [];             % Keep only folders 
 nSubjects      = size(nameFolds,1);                         % Number of subFolders
 
 
-
+%% Loop over the number Of Subjects inside the fodler
 for cSubjects =1:nSubjects
     subjectCode         = nameFolds{cSubjects};
     subjectDirectory    =[studyDirectory '/' subjectCode '/'] ;
@@ -21,20 +21,21 @@ for cSubjects =1:nSubjects
     if nFiles ==0
         continue
     end
-    %===========================================================
-    % Main Loop
-    %===========================================================
     nHours         = zeros(nFiles,1);
+    %%% Loop over the number of files inside a subject folder
     for cFiles     = 1:nFiles
-        
+        % Displaying a filename being analysize
         display(cFiles)
         fileName    = [subjectDirectory fileList(cFiles).name]
         clear Opal OpalsL
+        % Reading Opals Data
         Opal        = getHDFdata(fileName);
         for ii=1:length(Opal.sensor)
             OpalsL{ii}=Opal.sensor(ii).monitorLabel;
         end
         OpalsL=OpalsL';
+        
+        % Finding Indices to match location of the sensors
         Lumb=strmatch(['Lumbar'],OpalsL);
         
         
@@ -72,11 +73,7 @@ for cSubjects =1:nSubjects
                 end
             end
         end
-        
-        %
-        
-        
-        
+        % Assigning Lumbar data
         Data=Opal.sensor(Lumb).acc.x';
         Data(:,2)=Opal.sensor(Lumb).acc.y';
         Data(:,3)=Opal.sensor(Lumb).acc.z';
@@ -84,6 +81,7 @@ for cSubjects =1:nSubjects
         Data(:,5)=Opal.sensor(Lumb).gyro.y';
         Data(:,6)=Opal.sensor(Lumb).gyro.z';
         
+        % Assigning Left and Right Leg data if any
         if ~isempty(Rleg)
             Data_Rl=Opal.sensor(Rleg).acc.x';
             Data_Rl(:,2)=Opal.sensor(Rleg).acc.y';
@@ -104,6 +102,7 @@ for cSubjects =1:nSubjects
             Data_Ll=[];
         end
         
+        % Assigning Left and Right Feet data
         Data_Rf=Opal.sensor(Rfoot).acc.x';
         Data_Rf(:,2)=Opal.sensor(Rfoot).acc.y';
         Data_Rf(:,3)=Opal.sensor(Rfoot).acc.z';
@@ -120,11 +119,11 @@ for cSubjects =1:nSubjects
         
         
         
-        
+        % Deviding total data into bacth of 30 mins 
         sampleRate= 128;
-        nSamples= length(Data(:,1));                             % whatever length is in the loaded file
-        segmentL= sampleRate*1800;                           % 30 min segment per plot 3600s in a hour, 1800 in 30 min
-        nSamples= nSamples - rem(nSamples,segmentL);         % multiple hours
+        nSamples= length(Data(:,1));                             
+        segmentL= sampleRate*1800;                           
+        nSamples= nSamples - rem(nSamples,segmentL);         
         
         iSamples    = 1 : nSamples;
         nHours = nSamples/(segmentL);
@@ -135,12 +134,13 @@ for cSubjects =1:nSubjects
         else
         end
         %------------------------------------------------
-        % Get Metrics for each hour and save
+        % Get Metrics for each 30 min data
         %------------------------------------------------
         
         Metrics    = getMetrics_MM(Data,Data_Rl, Data_Ll, Data_Rf,Data_Lf,iSamples, sampleRate,nHours,segmentL,fileName);
         
-        
+        % Saving all metrics for each 30 min data in a signle file within a
+        % subject folder
         for cHours = 1:size(Metrics,2)
             s(cFiles,cHours).Turns        = Metrics(cHours).Turns;
             s(cFiles,cHours).Walks        = Metrics(cHours).Walks;
@@ -154,6 +154,7 @@ for cSubjects =1:nSubjects
         end
         clear nHours segmentL
     end
+    % Saving all metrics in "s" strucutre format
     saveDirectory = [pwd '/'] ;
     saveName = [saveDirectory subjectCode '.mat'];
     save(saveName,'s');
