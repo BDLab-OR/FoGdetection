@@ -28,6 +28,9 @@ Currently, this repo contains everything directly under the main directory, exce
   3. Calculate the percentage of time spent freezing during each recording 
 3. Write the results to a new file in the subject's folder. 
 
+## Algorithm flowchart
+![Algorithm flowchart](https://github.com/VrutangShah/Freezing-Proxy/blob/master/FOG_algo_flowchart_V2.pdf)
+
 ## Where do I start?
 Start in the file `saveTURNFOGmetrics_MM_Vrutang.m`. You will first need to change the `studyDirectory` variable to your own path to the Freezing-Proxy directory. This script assumes that you have the patient information in subfolders under the Freezing-Proxy directory named something like `Subject01`. If your setup is different, you will either need to conform to the script's expectations, or locally modify the script so that it is getting information from the right place. 
 
