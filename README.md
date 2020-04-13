@@ -1,7 +1,7 @@
 # Freezing Proxy
 
 ## Intro
-This repo contains an algorithm that  detects episodes where a subject's gait has frozen, and then calculates the total amount of time spent freezing. The input for this algorithm are gait mertrics gathered from subjects who have been wearing an Opal wearable sensor. The output is a file broken into 30 minute increments containing the total time spent freezing over period of time. 
+This repo contains an algorithm that  detects Freezing of Gait (FOG) episodes in people with Parkinson's disease (PD), and calculates the total amount of time spent freezing. The input for this algorithm is raw accelerometer and gyroscope data (.h5 formate) from subjects wearning 3 Opal sensors with one of the lumbar and two on feet (or shanks). The output is a strucutre file containing the total amount of time spent frezzing (with other information that used to calculate the output). If the users have a continous monitoring data, the output is provided for each 30 minute window. 
 
 Currently, this repo contains everything directly under the main directory, except for one subfolder containing subject information. This will likely change as scripts get written in other languages and a different organization is needed.
 
@@ -14,18 +14,18 @@ Currently, this repo contains everything directly under the main directory, exce
 6. You should now have the repository on your machine and can get into the different directories. You can open the scripts using the IDE of your choice
 
 ## Algorithm summary
-1. Detects folders containing .h5 files where subject information and metrics have been recorded
+1. Detects folders containing .h5 files where raw data have been stored
 2. For each subject...
-  1. Segment data for lumbar, right leg, and left leg into 30 minute increments
-  2. For each increment...
-    1. Detect if subject is walking upright
-    2. Detect a bout of walking 
-    3. For each bout...
-      1. Detect freezing of gait using right and left leg gyroscope metrics
-      2. Detect freezing of gait using right and legt leg accelerometer
-      3. If both of these find a freexing of gait (FOG)...
-        1. Calculate FOG measures such as number and % of time spent freezing for each bout 
-  3. Calculate the percentage of time spent freezing during each recording 
+  1. Segment data of lumbar, right leg, and left leg into 30 minute window
+  2. For each 30 minute window...
+    1. Detect if subject is walking using lumbar accelerometer data
+    2. Find a total number of walking bouts
+    3. For each walking bout...
+      1. Detect potential FOG using right and left leg gyroscope data
+      2. Detect potential FOG using right and legt leg accelerometer data
+      3. If both of above steps (3.1 and 3.2) find a potentila (FOG)...
+        1. Declare a confirm FOG and calculate % of time spent freezing 
+  3. Calculate the percentage of time spent freezing during each 30 minute window
 3. Write the results to a new file in the subject's folder. 
 
 ## Algorithm flowchart
@@ -34,17 +34,16 @@ Currently, this repo contains everything directly under the main directory, exce
 ## Where do I start?
 Start in the file `saveTURNFOGmetrics_MM_Vrutang.m`. You will first need to change the `studyDirectory` variable to your own path to the Freezing-Proxy directory. This script assumes that you have the patient information in subfolders under the Freezing-Proxy directory named something like `Subject01`. If your setup is different, you will either need to conform to the script's expectations, or locally modify the script so that it is getting information from the right place. 
 
-This file executes the entirety of the algorithm, and calls on the functions contained in other files in order to do some of the data analysis. 
+This file executes the entirety of the algorithm, and calls on the functions contained in other files in order to do further data analysis. 
 
 ## Files summary
 - saveTURNFOGmetrics_MM_Vrutang.m: This file executes the algorithm, calling other functions as needed. It serves as the skeleton of the entire program. In order, the file:
-  - calls getHDFdata.m to get accelerometer, gyroscope, magnometer, and orientation data for each device
-  - calls getMetrics_MM to get data segemted by 30 minute increment 
+  - calls getHDFdata.m to get accelerometer, gyroscope, magnometer, and orientation data for each recording
+  - calls getMetrics_MM to get data segemted by 30 minute window
     - calls KernelFilter to apply Epanechnikov kernel filter
-    - calls getACCBouts_FOG_MM to identify bouts within the segment 
-    - calls getFOGmarkers to identify freezing of gait using accelerometer
-    - calls getFOGmarkers_feet to identify freezing of gait using accelerometer in feet 
-    - calls getTurnMetrics_BB to get identify freezing of gait using gyroscope
+    - calls getACCBouts_FOG_MM to identify bouts within for each 30 minute window
+    - calls getFOGmarkers to identify FOG episodes and calculates % time spent freezing using sensors on the shank (if any)
+    - calls getFOGmarkers_feet to identify OG episodes and calculates % time spent freezing using sensors on the foot
 
 ## Editing the scripts 
 1. Create a new branch to do your work on. Do this using `git checkout -b $branchname`, where $branchname is a name you select for your branch
