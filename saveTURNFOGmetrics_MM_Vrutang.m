@@ -4,7 +4,7 @@ dbstop if error
 %===========================================================
 % User-Specified Parameters
 %===========================================================
-studyDirectory = 'C:\Users\shahvr\Documents\GitHub\Freezing-Proxy\';
+studyDirectory = 'C:\Users\shahvr\Documents\GitHub\FoGdetection';
 folderList     = dir(studyDirectory);
 isub           = [folderList(:).isdir];                     % Returns logical vector
 nameFolds      = {folderList(isub).name}';
