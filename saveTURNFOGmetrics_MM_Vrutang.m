@@ -29,7 +29,11 @@ for cSubjects =1:nSubjects
         fileName    = [subjectDirectory fileList(cFiles).name]
         clear Opal OpalsL
         % Reading Opals Data
-        Opal        = getHDFdata(fileName);
+        try
+            Opal        = getHDFdata(fileName);
+        catch
+            Opal        = readOpalData(fileName);
+        end
         for ii=1:length(Opal.sensor)
             OpalsL{ii}=Opal.sensor(ii).monitorLabel;
         end
