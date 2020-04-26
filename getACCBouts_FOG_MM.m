@@ -48,7 +48,12 @@ end
 % Finding the indices of the start of the walking boouts
 iWalkStart_bt  = iNoWalk(find(diff(iNoWalk) > 1))+1;           
 
-
+%% Added on 4 July 2020
+if (~isempty(iWalkEnd_bt)==1) && (~isempty(iWalkStart_bt)==1) && (iWalkStart_bt(end)~=(iNoWalk(end)-1)) && ((iNoWalk(end)+1)<length(Lum_f))
+    iWalkStart_bt=[iWalkStart_bt;iNoWalk(end)+1];
+else
+end
+%%
 %%%%%%%% % In Case of Mutliple Start and End bouts
 
 % 1. When End bout is nonempty and (the leanght of either the end bout and
