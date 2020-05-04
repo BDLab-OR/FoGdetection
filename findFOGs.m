@@ -1,9 +1,15 @@
 function [] = findFOGs
 dbstop if error
 
-%User-specified variables 
-subjectFolder = '/Users/alexastefanko/lab/Freezing-Proxy/Subjects';
-outputDirectory = '/Users/alexastefanko/lab/Freezing-Proxy/Output/';
+%{
+USER SPECIFIED VARIABLES
+Subject folder must contain CSV files. These can be in subdirectories.
+Output directory can be anywhere
+Please set the column names so they correspond to the correct data, as
+described in comments below
+%}
+subjectFolder = '/Users/alexastefanko/lab/FoGdetection/Subjects';
+outputDirectory = '/Users/alexastefanko/lab/FoGdetection/Output/';
 sampleRate = 128;
 
 R_acc_ap_col = "R_acc"; %Column name for right accelerometer anterior-posterior
@@ -22,6 +28,7 @@ end
 fds = fileDatastore(subjectFolder, 'ReadFcn', @load, 'FileExtensions', '.csv');
 fullFileNames = fds.Files;
 numFiles = length(fullFileNames);
+
 % Loop over all files and process them
 for k = 1 : numFiles
     fileName = fullFileNames{k};
@@ -33,10 +40,11 @@ for k = 1 : numFiles
     L_acc_ap = metricsTable.(L_acc_ap_col);
     R_gyr_ml = metricsTable.(R_gyr_ml_col);
     L_gyr_ml = metricsTable.(L_gyr_ml_col);
-    IFOG_limbs = getFOGInstances(R_acc_ap, L_acc_ap, R_gyr_ml, L_gyr_ml, sampleRate, name);
-    FOGs(k) = IFOG_limbs;
+    IFOG_feet = getFOGInstances(R_acc_ap, L_acc_ap, R_gyr_ml, L_gyr_ml, sampleRate, name);
+    FOGs(k) = IFOG_feet;
 end
 
+%Return FOG info on a per-bout basis to an xls file. Each row is a bout. 
 writetable(struct2table(FOGs), strcat(outputDirectory,'fogs.xls'));
 
 
