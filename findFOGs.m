@@ -5,8 +5,10 @@ dbstop if error
 USER SPECIFIED VARIABLES
 Subject folder must contain CSV files. These can be in subdirectories.
 Output directory can be anywhere
-Please set the column names so they correspond to the correct data, as
-described in comments below
+To set input accelerometer and gryoscope data (required to run this), 
+please set the column names so they correspond to the correct data, as
+described in comments below. If you have questions about this, please see the 
+Readme at https://github.com/BDLab-OR/FoGdetection
 %}
 subjectFolder = '/Users/alexastefanko/lab/FoGdetection/Subjects';
 outputDirectory = '/Users/alexastefanko/lab/FoGdetection/Output/';
@@ -40,8 +42,8 @@ for k = 1 : numFiles
     L_acc_ap = metricsTable.(L_acc_ap_col);
     R_gyr_ml = metricsTable.(R_gyr_ml_col);
     L_gyr_ml = metricsTable.(L_gyr_ml_col);
-    IFOG_feet = getFOGInstances(R_acc_ap, L_acc_ap, R_gyr_ml, L_gyr_ml, sampleRate, name);
-    FOGs(k) = IFOG_feet;
+    IFOG = getFOGInstances(name, R_acc_ap, L_acc_ap, R_gyr_ml, L_gyr_ml, sampleRate);
+    FOGs(k) = IFOG;
 end
 
 %Return FOG info on a per-bout basis to an xls file. Each row is a bout. 
