@@ -22,10 +22,6 @@ Currently, this repo contains everything directly under the main directory, exce
         1. Declare a FOG and calculate % of time spent freezing 
 3. Write the results to the a file in the output folder, with one row per input file
 
-## Algorithm flowchart
-The entire algorithm is contained within the `getFOGInstances.m` file.
-![Algorithm flowchart](https://github.com/BDLab-OR/FoGdetection/blob/master/FOGdetection_Flowchart_updated.png)
-
 ## Where do I start?
 Start in the file `findFOGs.m`. You will first need to change the `subjectFolder` variable to your own path to the directory that contains subjects and bouts of gait. This will look for all csv files in the directory, and any of its subdirectories and will work to calculate FOGs from all CSV files. You will also need to set the `outputDirectory` variable to a directory of your choice. Finally, you will need to set the column names to the column names in your input files that correspond to the left and right accelerometer and gyroscope data. 
 
