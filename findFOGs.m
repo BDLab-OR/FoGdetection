@@ -11,7 +11,7 @@ described in comments below. If you have questions about this, please see the
 Readme at https://github.com/BDLab-OR/FoGdetection
 %}
 subjectFolder = '/Users/alexastefanko/lab/FoGdetection/Subjects';
-outputDirectory = '/Users/alexastefanko/lab/FoGdetection/Output/';
+yourOutputDirectory = '/Users/alexastefanko/lab/FoGdetection/';
 sampleRate = 128;
 
 R_acc_ap_col = "R_acc"; %Column name for right accelerometer anterior-posterior
@@ -46,7 +46,9 @@ for k = 1 : numFiles
     FOGs(k) = IFOG;
 end
 
-%Return FOG info on a per-bout basis to an xls file. Each row is a bout. 
+%Return FOG info on a per-bout basis to an xls file. Each row is a bout.
+mkdir(yourOutputDirectory, "Output");
+outputDirectory = strcat(yourOutputDirectory, "Output/");
 writetable(struct2table(FOGs), strcat(outputDirectory,'fogs.xls'));
 
 

@@ -28,7 +28,7 @@ cross_1=xcov(sensor_data(1:se,1),sensor_data(1:se,2));
 crosscov=cross_1;
 for k=1:length(crosscov)
     if crosscov(k)==max(crosscov)
-        shiftSIGN=k;
+        shiftSIGN=k
     end
 end
 
@@ -61,8 +61,8 @@ end
 fc2=200;
 xx=resample(R_acc_ap,fc2,sampleRate);
 yy=resample(L_acc_ap,fc2,sampleRate);
-x=xx(round(abs(startsync)):se,1);
-y=yy(1:se-(round(abs(startsync))-1),1);
+x=xx(round(abs(startsync)):se,1); %corrected_r_ap
+y=yy(1:se-(round(abs(startsync))-1),1); %corrected_ap
 if length(x)>fc2*5%% Ideally there is no condition like this once we find bout duration greater than 10 sec
 
     i=1:(fc2):(length(x)-(fc2)-1);
@@ -89,8 +89,6 @@ if length(x)>fc2*5%% Ideally there is no condition like this once we find bout d
             percF(f)=0;
         end
     end
-    A=find(percF==1);
-    B=length(percF);
 
 
     %% Condition of Finalizing FOG based both methods correctly identified FOG episodes
@@ -117,18 +115,12 @@ if length(x)>fc2*5%% Ideally there is no condition like this once we find bout d
     Merged_percF_final(FOG_episode(indices_2)+1)=1;
     Merged_percF_final(FOG_episode(indices_2)+2)=1;
 
-
-
     N=find(Merged_percF_final==1);
     M=length(Merged_percF_final);
     %%% Percentage time frozen
     IFOG.NN=length(N);
     IFOG.MM=M;
 
-
-
-    indices_for_distribution=find(Merged_percF_final)';
-    O=length(indices_for_distribution);
     Very_short_FOG=0;
     Short_FOG=0;
     Long_FOG=0;
