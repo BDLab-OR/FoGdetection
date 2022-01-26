@@ -1,4 +1,4 @@
-function IFOG=getFOGInstances(fileName, R_acc_ap,L_acc_ap,R_gyr_ml,L_gyr_ml,sampleRate)
+function IFOG=getFOGInstances(name, R_acc_ap,L_acc_ap,R_gyr_ml,L_gyr_ml,sampleRate)
 %{
 Detect FOGs using FFT-based method with accelerometer data
 Detect FOGs using correlation-based methods with gyroscope data
@@ -6,7 +6,7 @@ If both methods detect a FOG, register it as  FOG
 Break into very short, short, and long FOG episodes
 %}
 
-IFOG.fileName = fileName;
+IFOG.fileName = name;
 
 %% resample from 128 to 200
 R_ml=resample(R_gyr_ml,200,sampleRate);
