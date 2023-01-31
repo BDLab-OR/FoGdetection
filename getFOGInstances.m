@@ -26,11 +26,7 @@ se=length(R_ml);
 %R and L angular velocities cross-correlation to find a delay between two
 cross_1=xcov(sensor_data(1:se,1),sensor_data(1:se,2));
 crosscov=cross_1;
-for k=1:length(crosscov)
-    if crosscov(k)==max(crosscov)
-        shiftSIGN=k
-    end
-end
+[~,shiftSIGN] = max(cross_1);
 
 startsync=shiftSIGN-((length(crosscov)/2));
 
